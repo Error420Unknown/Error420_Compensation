@@ -5,6 +5,8 @@
 
 - Players can redeem codes whenever they want or log in.
 
+- Bulk Item Compensation
+
 - Vehicle Compensation
   
 - Discord logging for transparency.
