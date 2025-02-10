@@ -119,26 +119,3 @@ RegisterNetEvent('openCompensationClaimMenu', function()
         lib.notify({ type = 'error', description = 'Invalid code!' })
     end
 end)
-
-RegisterNetEvent('Error420_Compensation:spawnVehicle', function(model, plate, mods)
-    local playerPed = PlayerPedId()
-    local coords = GetEntityCoords(playerPed)
-
-    RequestModel(model)
-    while not HasModelLoaded(model) do
-        Wait(100)
-    end
-
-    local vehicle = CreateVehicle(model, coords.x, coords.y, coords.z, GetEntityHeading(playerPed), true, false)
-    SetVehicleNumberPlateText(vehicle, plate)
-
-    if mods then
-        for mod, value in pairs(mods) do
-            SetVehicleMod(vehicle, mod, value, false)
-        end
-    end
-
-    TaskWarpPedIntoVehicle(playerPed, vehicle, -1)
-
-    lib.notify({ type = 'success', description = 'Your compensated vehicle has been added to your garage!' })
-end)
