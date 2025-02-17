@@ -1,5 +1,5 @@
 local QBCore = exports.qbx_core
-local Webhook = 'PUT_YOUR_WEBHOOK_HERE'
+local Webhook = 'https://discord.com/api/webhooks/1340876659225526272/CLjcz22dEUEiKwG7AH8totZBw3oH70235ZgJzPfviLsj_Do1dB9Hb4OEhuAjLtt8TSAe'
 
 lib.addCommand('createcomp', {
     help = 'Open the compensation code creation menu',
@@ -45,13 +45,36 @@ lib.callback.register("Error420_Compensation:createCode", function(source, data)
         query = query:sub(1, -2)
 
         local inserted = MySQL.insert.await(query, params)
-        return inserted and inserted > 0
+    
+        if inserted and inserted > 0 then
+            sendToDiscord(
+                'Compensation Code Created',
+                '**Admin:** ' .. xPlayer.PlayerData.name ..
+                '\n**Code:** ' .. data.code ..
+                '\n**Type:** Item' ..
+                '\n**Items:** ' .. json.encode(data.items),
+                Webhook
+            )
+            return true
+        end
     elseif data.type == "vehicle" then
         if not data.vehicle or not data.vehicle.model or not data.vehicle.plate then return false end
 
         local query = "INSERT INTO compensation_codes (code, type, vehicle_model, vehicle_plate, vehicle_mods, created_by) VALUES (?, 'vehicle', ?, ?, ?, ?)"
         local inserted = MySQL.insert.await(query, { data.code, data.vehicle.model, data.vehicle.plate, data.vehicle.mods, xPlayer.PlayerData.citizenid })
-        return inserted and inserted > 0
+
+        if inserted and inserted > 0 then
+            sendToDiscord(
+                'Compensation Code Created',
+                '**Admin:** ' .. xPlayer.PlayerData.name ..
+                '\n**Code:** ' .. data.code ..
+                '\n**Type:** Vehicle' ..
+                '\n**Vehicle Model:** ' .. data.vehicle.model ..
+                '\n**Plate:** ' .. data.vehicle.plate,
+                Webhook
+            )
+            return true
+        end
     end
 
     return false
@@ -125,12 +148,19 @@ end)
 function sendToDiscord(title, message, webhook)
     local logs = json.encode({
         username = 'Compensation Logs',
-        embeds = { { title = title, description = message, color = 16711680 } }
+        content = " ",
+        embeds = { {
+            title = title,
+            description = message,
+            color = 3918068
+        } }
     })
 
     PerformHttpRequest(webhook, function(err, text, headers)
-        if err ~= 200 then
-            print('Discord Webhook failed! HTTP Code: ' .. err)
+        if err ~= 200 and err ~= 204 then
+            print('Discord Webhook failed! HTTP Code: ' .. err .. ' Response: ' .. (text or "nil"))
+        else
+            print("Webhook successfully sent: " .. title)
         end
     end, 'POST', logs, { ['Content-Type'] = 'application/json' })
 end
