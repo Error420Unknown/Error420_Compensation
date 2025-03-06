@@ -1,5 +1,5 @@
 local QBCore = exports.qbx_core
-local Webhook = 'https://discord.com/api/webhooks/1340876659225526272/CLjcz22dEUEiKwG7AH8totZBw3oH70235ZgJzPfviLsj_Do1dB9Hb4OEhuAjLtt8TSAe'
+local Webhook = ''
 
 lib.addCommand('createcomp', {
     help = 'Open the compensation code creation menu',
